@@ -1,0 +1,17 @@
+###########Get port###########################################
+sudo lsof -i :3333            find sessions for port
+sudo kill -9 114842          kill ports
+###############################################################
+
+###########open screen#########################################
+ screen -S run               create to screen all time named (run)
+ screen -r run               return to screen all time named (run)
+###############################################################
+
+##########postgrees command####################################
+sudo -i -u postgres
+createdb "HUE-StudentPortal"
+psql -c "CREATE USER \"HUE-StudentPortal\" WITH PASSWORD 'HUE-StudentPortal';"
+psql -c "GRANT ALL PRIVILEGES ON DATABASE \"HUE-StudentPortal\" TO \"HUE-StudentPortal\";"
+exit
+##############################################################

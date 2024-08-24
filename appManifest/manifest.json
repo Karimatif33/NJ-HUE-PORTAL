@@ -1,0 +1,52 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "40ea033c-b4f6-481b-95aa-4de8923abd2a",
+  "developer": {
+    "name": "Horus Software Department ",
+    "websiteUrl": "https://www.horus.edu.eg",
+    "privacyUrl": "https://www.horus.edu.eg/privacy",
+    "termsOfUseUrl": "https://www.horus.edu.eg/termsofuse"
+  },
+  "name": { "short": "NGT", "full": "Horus University in Egypt" },
+  "description": {
+    "short": "Student Information Portal",
+    "full": "Student Portal:\nAcademic Reports\nFinancial Reports\nQuestionnaire\nNotifications "
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#b88e1d",
+  "staticTabs": [
+    {
+      "entityId": "auth",
+      "name": "Auth",
+      "contentUrl": "https://knj.horus.edu.eg/",
+      "scopes": [
+        "personal"
+      ]
+    }
+  ],
+  "configurableTabs": [
+    {
+      "configurationUrl": "https://knj.horus.edu.eg/auth-end",
+      "canUpdateConfiguration": true,
+      "scopes": [
+        "team"
+      ]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "knj.horus.edu.eg"
+  ],
+  "webApplicationInfo": {
+    "id": "bb977033-8f3e-4f91-b2a5-0a3a3591a36f",
+    "resource": "api://knj.horus.edu.eg/bb977033-8f3e-4f91-b2a5-0a3a3591a36f"
+  }
+}
