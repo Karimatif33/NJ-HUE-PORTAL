@@ -36,8 +36,10 @@ exports.CurAcaYearValCtr = AsyncHandler(async (req, res) => {
       details: error.message,
     });
   } finally {
-    // Remember to release the client to the pool after use
-    client.release();
+    if (client) {
+      client.release();
+      console.log("CurAcaYearValCtr Client released");
+    }
   }
 });
   

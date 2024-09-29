@@ -99,6 +99,9 @@ exports.fetshingStudentTranscript = AsyncHandler(async (req, res) => {
       return { status: "fail", error: `Error fetching data from ${apiUrl}` };
     }
   } finally {
-    // console.log("client release");;
+    if (client) {
+      client.release();
+      console.log("fetshingStudentTranscript Client released");
+    }
   }
 });

@@ -150,7 +150,7 @@ exports.fetshingAttendance = AsyncHandler(async (req, res) => {
   } finally {
     if (client) {
       client.release();
-      console.log("Client connection released");
+      console.log("fetshingAttendance Client released");
     }
   }
 });

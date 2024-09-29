@@ -31,8 +31,7 @@ const CoursesQuestionnaire = () => {
   const [activeSubjectIndex, setActiveSubjectIndex] = useState(null);
   const [courseButtonDisabled, setCourseButtonDisabled] = useState(false);
   const [showMessage, setShowMessage] = useState(false); // New state for showing message
-
-
+  const [answeredSubjects, setAnsweredSubjects] = useState({});
 
   // Fetches instructor data and updates state based on DBUser and fetchTrigger changes
   useEffect(() => {
@@ -65,28 +64,68 @@ const CoursesQuestionnaire = () => {
 
 
 
-  // Fetches subject data based on DBUser and fetchTrigger changes
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(
-          `https://knj.horus.edu.eg/api/hue/portal/v1/Qus-CheckSubjectsExs/${DBUser}`
-        );
-        console.log("Fetched data CheckSubjectsExs :", response.data);
-        setAnsweredSubjectData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Failed to fetch data. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-    console.log("Fetch trigger changed:", fetchTrigger);
-  }, [DBUser, fetchTrigger]);
-  // console.log(answeredSubjectData, "AnsweredSubjectData")
+// Fetches subject data based on DBUser and fetchTrigger changes
+useEffect(() => {
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `https://knj.horus.edu.eg/api/hue/portal/v1/Qus-CheckSubjectsExs/${DBUser}`
+      );
+      console.log("Fetched data CheckSubjectsExs:", response.data);
+      setAnsweredSubjectData(response.data);
+      
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError("Failed to fetch data. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  fetchData();
+  console.log("Fetch trigger changed:", fetchTrigger);
+}, [DBUser, fetchTrigger]);
+
+// Function to check if a subject and all its instructors are fully answered
+const checkIfAllAnswered = (subjectId, subjectInstructors) => {
+  const isSubjectAnswered = checkIfSubjectAnswered(subjectId);
+  const areAllInstructorsAnswered = subjectInstructors.every((instructor) => instructor.answered);
+
+  return isSubjectAnswered && areAllInstructorsAnswered;
+};
+
+// useEffect to check all subjects and their instructors after fetching data
+useEffect(() => {
+  if (subjects.length > 0 && instructors.length > 0 && answeredSubjectData.length > 0) {
+    const updatedAnsweredSubjects = {};
+
+    subjects.forEach((subject) => {
+      const subjectInstructors = instructors.filter(
+        (instructor) => instructor.subjectId === subject.subjectid
+      );
+      
+      // Check if both subject and instructors are answered
+      updatedAnsweredSubjects[subject.subjectid] = checkIfAllAnswered(subject.subjectid, subjectInstructors);
+    });
+
+    setAnsweredSubjects(updatedAnsweredSubjects);
+    console.log("Updated answered subjects:", updatedAnsweredSubjects);
+  }
+}, [subjects, instructors, answeredSubjectData]);
+
+// useEffect to check the currently selected subject and its instructors
+useEffect(() => {
+  if (selectedSubject && instructors.length > 0) {
+    const subjectInstructors = instructors.filter(
+      (instructor) => instructor.subjectId === selectedSubject.subjectid
+    );
+
+    const isAllAnswered = checkIfAllAnswered(selectedSubject.subjectid, subjectInstructors);
+    setCourseButtonDisabled(isAllAnswered);
+    console.log(`Is the course button disabled for subject ${selectedSubject.subjectid}:`, isAllAnswered);
+  }
+}, [selectedSubject, instructors, answeredSubjectData, answeredInstructorsData]);
 
 
   // Fetches subjects data based on DBUser and fetchTrigger changes
@@ -140,7 +179,6 @@ const CoursesQuestionnaire = () => {
             });
 
             setGroupedQuestions(grouped);
-            // console.log(groupedQuestions,"a ");
           })
           .catch((error) => console.error("Error fetching questions:", error));
       })
@@ -174,44 +212,6 @@ const CoursesQuestionnaire = () => {
     );
   };
   // console.log(activeInstructorIndex)
-
-
-
-
-  const areAllInstructorsAnswered = (subjectId) => {
-    const subjectInstructors = instructors.filter(
-      (instructor) => instructor.subjectid === subjectId
-    );
-    console.log('Subject Instructors:', subjectInstructors);
-    
-    const uniqueInstructorIds = [
-      ...new Set(subjectInstructors.map((instructor) => instructor.id))
-    ];
-    console.log('Unique Instructor IDs:', uniqueInstructorIds);
-  
-    const allAnswered = uniqueInstructorIds.every((instructorId) =>
-      checkIfInstructorAnswered(subjectId, instructorId)
-    );
-    console.log('All Instructors Answered:', allAnswered);
-  
-    return allAnswered;
-  };
-  
-  const isSubjectAndInstructorsAnswered = (subjectId) => {
-    const isSubjectAnswered = checkIfSubjectAnswered(subjectId);
-    console.log('Is Subject Answered:', isSubjectAnswered);
-  
-    const areInstructorsAnswered = areAllInstructorsAnswered(subjectId);
-    console.log('Are Instructors Answered:', areInstructorsAnswered);
-  
-    return isSubjectAnswered && areInstructorsAnswered;
-  };
-  
-// Example usage 
-console.log('checkIfSubjectAnswered', checkIfInstructorAnswered(selectedSubject));
-console.log('checkIfInstructorAnswered', checkIfInstructorAnswered(selectedSubject));
-
-console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstructorsAnswered-selectedSubject"));
 
 
 
@@ -409,6 +409,11 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
       );
       setSubjects(updatedSubjects);
 
+      const answered = new Set(updatedSubjects.filter(sub => sub.answered).map(sub => sub.subjectid));
+      setAnsweredSubjects(answered);
+
+
+
       // Disable the course button and trigger re-fetch
       setCourseButtonDisabled(true);
       setFetchTrigger((prev) => !prev);
@@ -574,6 +579,7 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
 
   // Function to handle subject click events
   const handleSubjectClick = async (subject) => {
+
     setView("course"); // Set the view to "course"
     setSelectedSubject(subject); // Set the currently selected subject
     setActiveInstructorIndex(null); // Reset the active instructor index
@@ -608,7 +614,7 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
     }
   }, [instructors]);
 
- 
+
   // Check if all instructors have been answered
   const checkIfAllInstructorsAnswered = () => {
     const answered = instructors.every((instructor) =>
@@ -649,10 +655,10 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
 
 
 
-  
+
   return (
     <div className="flex flex-col items-center min-h-screen text-gray-800 dark:text-gray-100 p-4">
-      {error && <p>{error}</p>} 
+      {error && <p>{error}</p>}
       {isLoading ? (
         <Spinner />  /* Show spinner if data is still loading */
       ) : (
@@ -669,20 +675,19 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
             {subjects.map((subject) => (
               <button
                 key={subject.subjectid}
+                // disabled={answeredSubjects[subject.subjectid] || false}
                 onClick={() => handleSubjectClick(subject)}
                 style={{
-                  backgroundColor:
-                    selectedSubject &&
-                      selectedSubject.subjectid === subject.subjectid
-                      ? "#3B82F6"
-                      : "#6B7280", // Blue if active, gray otherwise
-                  color:
-                    selectedSubject &&
-                      selectedSubject.subjectid === subject.subjectid
-                      ? "#FFFFFF"
-                      : "#F3F4F6", // White text if active, lighter gray otherwise
+                  backgroundColor: answeredSubjects[subject.subjectid]
+                    ? "#FFA500" // Orange for answered subjects
+                    : selectedSubject && selectedSubject.subjectid === subject.subjectid
+                    ? "#3B82F6" // Blue if selected
+                    : "#6B7280", // Gray otherwise
+                  color: selectedSubject && selectedSubject.subjectid === subject.subjectid
+                    ? "#FFFFFF" // White text if selected
+                    : "#F3F4F6", // Lighter gray text otherwise
                 }}
-                className="px-4 py-2 m-2 font-semibold rounded-lg shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:ring-opacity-75"
+                className={`px-4 py-2 m-2 font-semibold rounded-lg shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:ring-opacity-75`}
               >
                 {subject.subjectName}
               </button>
@@ -694,8 +699,8 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
                 <button
                   onClick={() => setView("course")}
                   className={`px-4 py-2 ${view === "course"
-                      ? "bg-blue-500 dark:bg-blue-700"
-                      : "bg-[#6B7280] dark:bg-gray-700"
+                    ? "bg-blue-500 dark:bg-blue-700"
+                    : "bg-[#6B7280] dark:bg-gray-700"
                     } text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 dark:hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600 focus:ring-opacity-75`}
                   style={{
                     backgroundColor: checkIfSubjectAnswered(selectedSubject.subjectid)
@@ -716,8 +721,8 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
                       setView("instructors");
                     }}
                     className={`px-4 py-2 ${view === "instructors"
-                        ? "bg-blue-500 dark:bg-blue-700"
-                        : "bg-[#6B7280] dark:bg-gray-700"
+                      ? "bg-blue-500 dark:bg-blue-700"
+                      : "bg-[#6B7280] dark:bg-gray-700"
                       } text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 dark:hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600 focus:ring-opacity-75`}
                   >
                     Instructors
@@ -725,8 +730,8 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
                 ) : (
                   <button
                     className={`px-4 py-2 ${view === "instructors"
-                        ? "bg-blue-500 dark:bg-blue-700"
-                        : "bg-orange-500 dark:bg-orange-700 cursor-not-allowed"
+                      ? "bg-blue-500 dark:bg-blue-700"
+                      : "bg-orange-500 dark:bg-orange-700 cursor-not-allowed"
                       } text-white font-semibold rounded-lg shadow-md`}
                     style={{
                       cursor: "not-allowed",
@@ -778,9 +783,9 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
                                     <label
                                       htmlFor={`${option.id}_${question.id}`}
                                       className={`px-4 py-2 rounded-lg cursor-pointer ${selectedOptions[question.id]?.id ===
-                                          option.id
-                                          ? "bg-blue-500 text-white" // Active style for selected option
-                                          : "bg-gray-300 dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                                        option.id
+                                        ? "bg-blue-500 text-white" // Active style for selected option
+                                        : "bg-gray-300 dark:bg-gray-800 text-gray-800 dark:text-gray-100"
                                         } qusbox`}
                                     >
                                       {option.text}
@@ -817,8 +822,8 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
                     onClick={handleSubmit}
                     disabled={!submitEnabled}
                     className={`mt-4 px-4 py-2 font-semibold rounded-lg shadow-md ${submitEnabled
-                        ? "bg-green-500 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-900"
-                        : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                      ? "bg-green-500 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-900"
+                      : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
                       } text-white focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-600 focus:ring-opacity-75`}
                   >
                     Submit
@@ -838,8 +843,8 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
                             key={instructor.id}
                             onClick={() => handleInstructorClick(instructor.id)}
                             className={`px-5 py-2 m-2 font-semibold rounded-lg shadow-md mb-5 ${activeInstructorIndex === instructor.id
-                                ? "bg-blue-500 dark:bg-blue-700 text-white"
-                                : "bg-gray-400 dark:bg-gray-600 text-black dark:text-white"
+                              ? "bg-blue-500 dark:bg-blue-700 text-white"
+                              : "bg-gray-400 dark:bg-gray-600 text-black dark:text-white"
                               } ${instructor.answered
                                 ? "bg-orange-500 dark:bg-orange-700 cursor-not-allowed"
                                 : "hover:bg-blue-900 dark:hover:bg-blue-900"
@@ -899,10 +904,10 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
                                             <label
                                               htmlFor={`${option.id}_${question.id}`}
                                               className={`px-4 py-2 rounded-lg cursor-pointer ${selectedOptionsInstructor[
-                                                  question.id
-                                                ]?.id === option.id
-                                                  ? "bg-blue-500 text-white"
-                                                  : "bg-gray-300 dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                                                question.id
+                                              ]?.id === option.id
+                                                ? "bg-blue-500 text-white"
+                                                : "bg-gray-300 dark:bg-gray-800 text-gray-800 dark:text-gray-100"
                                                 } qusbox`}
                                             >
                                               {option.text}
@@ -942,8 +947,8 @@ console.log(isSubjectAndInstructorsAnswered(selectedSubject,"isSubjectAndInstruc
                             onClick={handleSubmitInstructor}
                             disabled={!submitEnabled}
                             className={`mt-4 px-4 py-2 font-semibold rounded-lg shadow-md ${submitEnabled
-                                ? "bg-green-500 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-900"
-                                : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                              ? "bg-green-500 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-900"
+                              : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
                               } text-white focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-600 focus:ring-opacity-75`}
                           >
                             Submit

@@ -136,13 +136,16 @@ exports.fetshingCurrentTranscriptCourse = AsyncHandler(async (req, res) => {
 
       const result = await client.query(selectQuery, [courseId]);
       res.json(result.rows);
-      client.release();
+      // client.release();
       return { status: "success" };
     } catch (error) {
       console.error(`Error fetching data from ${apiUrl}:`, error.message);
       return { status: "fail", error: `Error fetching data from ${apiUrl}` };
     }
   } finally {
-    // console.log("client release");;
+    if (client) {
+      client.release();
+      console.log("fetshingCurrentTranscriptCourse Client released");
+    }
   }
 });

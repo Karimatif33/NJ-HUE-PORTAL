@@ -38,6 +38,8 @@ exports.CurSemesterValBlockCtr = AsyncHandler(async (req, res) => {
       details: error.message,
     });
   } finally {
-    client.release(); // Ensure client is released
-  }
+    if (client) {
+      client.release();
+      console.log("CurSemesterValBlockCtr Client released");
+    }  }
 });

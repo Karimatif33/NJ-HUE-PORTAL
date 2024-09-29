@@ -87,13 +87,14 @@ app.use(helmet({
     }
   }
 }));
+app.use(cors()); // Allows all origins
 
-app.use(cors({
-  origin: 'https://knj.horus.edu.eg',
-  allowedHeaders: ['Authorization', 'Content-Type'],
-  credentials: true,
-  methods: ['GET', 'POST'],
-}));
+// app.use(cors({
+//   origin: 'https://knj.horus.edu.eg',
+//   allowedHeaders: ['Authorization', 'Content-Type'],
+//   credentials: true,
+//   methods: ['GET', 'POST'],
+// }));
 
 app.use(cookieParser());
 app.use(bodyParser.json({ limit: '1mb' }));
@@ -124,9 +125,7 @@ app.post('/api/log', (req, res) => {
     res.status(400).send('Bad Request');
   }
 });
-app.use('/admin', isAdmin, (req, res) => {
-  res.send('Welcome, Admin!');
-});
+
 
 // Session configuration
 app.use(session({
@@ -163,16 +162,12 @@ app.use(isAdmin);
 
 // ///////////////////////////
 
-const privateKey = fs.readFileSync('key.pem', 'utf8');
-const certificate = fs.readFileSync('cert.pem', 'utf8');
-const credentials = { key: privateKey, cert: certificate };
-
-app.use(cors({
-  origin: 'http://41.33.195.35:3000',
-  allowedHeaders: ['Authorization', 'Content-Type'],
-  credentials: true,
-  methods: ['GET', 'POST'],
-}));
+// app.use(cors({
+//   origin: 'http://10.11.11.15:3000',
+//   allowedHeaders: ['Authorization', 'Content-Type'],
+//   credentials: true,
+//   methods: ['GET', 'POST'],
+// }));
 
 // Set up routes
 

@@ -111,6 +111,7 @@ exports.fetshingCurrentTranscript = AsyncHandler(async (req, res) => {
   } finally {
     if (client) {
       client.release();
+      console.log("fetshingCurrentTranscript Client released");
     }
   }
 });

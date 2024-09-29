@@ -81,7 +81,10 @@ exports.fetshingTotalsData = AsyncHandler(async (req, res) => {
       return { status: "fail", error: `Error fetching data from ${apiUrl}` };
     }
   } finally {
-    // console.log("client release");;
+    if (client) {
+      client.release();
+      console.log("fetshingTotalsData Client released");
+    }
   }
 
   // } catch (error) {

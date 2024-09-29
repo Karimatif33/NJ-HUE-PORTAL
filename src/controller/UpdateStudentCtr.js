@@ -39,7 +39,7 @@ exports.UpdateStudentCtr = AsyncHandler(async (req, res) => {
     // Ensure the client is released to the pool
     if (client) {
       client.release();
-      console.log("Client released after data operation.");
+      console.log("UpdateStudentCtr Client released.");
     }
   }
 });

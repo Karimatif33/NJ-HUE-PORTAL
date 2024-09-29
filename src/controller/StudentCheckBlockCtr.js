@@ -67,6 +67,8 @@ exports.fetshingCheckBlock = AsyncHandler(async (req, res) => {
     } finally {
       // Release the client back to the pool
       client.release();
+      console.log("fetshingCheckBlock Client released");
+
     }
   } catch (error) {
     console.error("Error fetching data:", error.message);

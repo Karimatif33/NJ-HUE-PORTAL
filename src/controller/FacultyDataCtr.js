@@ -48,13 +48,16 @@ exports.fetshingFacultyData = AsyncHandler(async (req, res) => {
 
       // Return the retrieved data as JSON
       res.json(result.rows);
-      client.release();
+      // client.release();
       return { status: "success" };
     } catch (error) {
       console.error(`Error fetching data from ${apiUrl}:`, error.message);
       return { status: "fail", error: `Error fetching data from ${apiUrl}` };
     }
   } finally {
-    // console.log("client release");;
+      if (client) {
+        client.release();
+        console.log("fetshingFacultyData Client released");
+      }
   }
 });

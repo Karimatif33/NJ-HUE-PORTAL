@@ -14,47 +14,52 @@ async function fetchDataByIdFromDB(code) {
     WHERE answers.instructors.student_id = $1;
   `;
 
+  let client;
   try {
-    const client = await pool.connect();
+    client = await pool.connect();
+
+    // Validate and parse the code parameter
     if (code === null || isNaN(code)) {
-      code = 0;
+      code = 0; // Default value if code is invalid
     } else {
-      code = parseInt(code);
-      console.log("Fetching data for id:", code);
+      code = parseInt(code, 10);
+      console.log("Fetching data for id:", code); // Replace with a logger if preferred
     }
 
     const result = await client.query(query, [code]);
 
-    // Initialize an object to store subjects and their instructors
+    // Initialize an array to store subjects and their instructors
     const subjectsArray = [];
-    
-    // Iterate through the query result to populate the subjects array
-    result.rows.forEach((row) => {
-      const studentid = row.student_id;
-      const subjectid = row.subject_id;
-      const instructor_id = row.instructor_id;
-      const courseid = row.courseid;
-      const academicyear = row.academic_year;
-      const semester = row.semester;
-      const answered = row.answered;
 
+    // Populate the subjects array with query results
+    result.rows.forEach((row) => {
+      const { student_id, subject_id, instructor_id, courseid, academic_year, semester, answered } = row;
+      
       subjectsArray.push({
-        studentid: studentid,
-        subjectid: subjectid,
-        // academicyearid: academicyear,
+        studentid: student_id,
+        subjectid: subject_id,
+        instructorid: instructor_id,
+        answered: answered,
+        // Uncomment these if needed
+        // academicyearid: academic_year,
         // semesterid: semester,
         // courseid: courseid,
-        answered: answered,
-        instructorid: instructor_id
       });
     });
-    
-    client.release();
-    console.log("Client released");
+
     return subjectsArray;
   } catch (error) {
-    console.error("Error fetching data:", error.message);
+    console.error("Error fetching data:", error.message); // Replace with a logger if preferred
     return [];
+  } finally {
+    if (client) {
+      try {
+        client.release();
+        console.log("CheckInstractorsExs Client released"); // Replace with a logger if preferred
+      } catch (releaseError) {
+        console.error("Error releasing client:", releaseError.message); // Replace with a logger if preferred
+      }
+    }
   }
 }
 

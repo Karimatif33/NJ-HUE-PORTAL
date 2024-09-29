@@ -137,7 +137,7 @@ exports.fetshingStuFeesData = AsyncHandler(async (req, res) => {
   } finally {
     if (client) {
       client.release();
-      console.log('client releases')
+      console.log('fetshingStuFeesData client releases')
     }
   }
 });

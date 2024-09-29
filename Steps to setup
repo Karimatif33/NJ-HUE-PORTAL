@@ -1,0 +1,144 @@
+# Create a new PDF instance with color and adjusted margins
+pdf = FPDF()
+
+# Set margins for the PDF
+pdf.set_left_margin(15)
+pdf.set_right_margin(15)
+
+# Add a page to the PDF
+pdf.add_page()
+
+# Add a background color for headers
+header_color = (100, 149, 237)  # Cornflower Blue color
+
+# Step 1: Title with background color
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 16)
+pdf.cell(0, 10, "Guide to Installing Node.js, npm, PostgreSQL 16, and Setting Up Node.js Project on Ubuntu", ln=True, align='C', fill=True)
+
+# Line break
+pdf.ln(10)
+
+# Step 1
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Step 1: Update System Packages", ln=True, fill=True)
+
+pdf.set_text_color(0, 0, 0)
+pdf.set_font("Arial", '', 11)
+pdf.multi_cell(0, 10, """sudo apt update
+sudo apt upgrade""")
+
+# Step 2
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Step 2: Install Node.js and npm (Latest Version)", ln=True, fill=True)
+
+pdf.set_text_color(0, 0, 0)
+pdf.set_font("Arial", '', 11)
+pdf.multi_cell(0, 10, """curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+
+sudo apt install -y nodejs""")
+
+# Step 3
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Step 3: Verify the installation of Node.js and npm", ln=True, fill=True)
+
+pdf.set_text_color(0, 0, 0)
+pdf.set_font("Arial", '', 11)
+pdf.multi_cell(0, 10, """node -v
+npm -v""")
+
+# Step 4
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Step 4: Install PostgreSQL 16", ln=True, fill=True)
+
+pdf.set_text_color(0, 0, 0)
+pdf.set_font("Arial", '', 11)
+pdf.multi_cell(0, 10, """To install PostgreSQL version 16, follow these steps:
+
+Add the PostgreSQL APT repository:
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+Import the repository signing key:
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+
+Update the package list:
+sudo apt update
+
+Install PostgreSQL 16:
+sudo apt install postgresql-16
+
+Start and enable the PostgreSQL service:
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+Verify PostgreSQL installation:
+psql --version""")
+
+# Step 5
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Step 5: Set Up Your Project", ln=True, fill=True)
+
+pdf.set_text_color(0, 0, 0)
+pdf.set_font("Arial", '', 11)
+pdf.multi_cell(0, 10, """Create a directory for your Node.js project:
+
+mkdir -p /home/nodejs
+cd /home/nodejs
+
+Navigate to the source directory and install dependencies:
+
+cd src
+npm install""")
+
+# Step 6
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Step 6: Install React dependencies", ln=True, fill=True)
+
+pdf.set_text_color(0, 0, 0)
+pdf.set_font("Arial", '', 11)
+pdf.multi_cell(0, 10, """Navigate to the React client directory and install React dependencies:
+
+cd src/client
+npm install""")
+
+# Step 7
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Step 7: Verify Everything is Working", ln=True, fill=True)
+
+pdf.set_text_color(0, 0, 0)
+pdf.set_font("Arial", '', 11)
+pdf.multi_cell(0, 10, """Ensure PostgreSQL is running:
+sudo systemctl status postgresql""")
+
+# Step 8
+pdf.set_fill_color(*header_color)
+pdf.set_text_color(255, 255, 255)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Step 8: Ensure Node.js is running properly", ln=True, fill=True)
+
+pdf.set_text_color(0, 0, 0)
+pdf.set_font("Arial", '', 11)
+pdf.multi_cell(0, 10, """cd /home/nodejs/src
+npm start (for Prod)
+npm run dev (for Dev)""")
+
+# Save the new PDF with color and margin adjustments
+pdf_file_colored = "/mnt/data/Nodejs_PostgreSQL_Ubuntu_Guide_Colored.pdf"
+pdf.output(pdf_file_colored)
+
+pdf_file_colored

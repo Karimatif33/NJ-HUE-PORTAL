@@ -111,7 +111,7 @@ exports.fetshingStudyTimetable = AsyncHandler(async (req, res, next) => {
       logger.error(`Database query error: ${error.message}`);
       throw error;
     } finally {
-      client.release();
+      // client.release();
       console.log("client release ");
     }
   } catch (error) {
@@ -129,11 +129,17 @@ exports.fetshingStudyTimetable = AsyncHandler(async (req, res, next) => {
       const result = await client.query(selectQuery, [StuId]);
       res.json(result.rows);
       console.log("Getting data from the DB due to an error");
-      client.release();
+      // client.release();
       console.log("client release DB");
     } catch (dbError) {
       logger.error(`Error querying the database: ${dbError.message}`);
       res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+      if (client) {
+        client.release();
+        console.log("fetshingStudyTimetable Client released");
+      }
     }
   }
 });

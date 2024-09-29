@@ -1,13 +1,12 @@
-// dbUtils.js
 const { pool } = require("../db/dbConnect");
 
 const schemaName = "questionnaire";
-const TableName = "ques_data";
+const tableName = "ques_data";
 
 const createSchemaQuery = `CREATE SCHEMA IF NOT EXISTS ${schemaName};`;
 
 const createTableQuery = `
-  CREATE TABLE IF NOT EXISTS ${schemaName}.${TableName} (
+  CREATE TABLE IF NOT EXISTS ${schemaName}.${tableName} (
     ID SERIAL PRIMARY KEY,
     question_type INTEGER,
     description VARCHAR,
@@ -16,23 +15,25 @@ const createTableQuery = `
 `;
 
 const createSchemaAndTable = async () => {
+  let client;
   try {
-    const client = await pool.connect();
+    client = await pool.connect();
     console.log("DB Connected Successfully");
 
     // Create the schema
     await client.query(createSchemaQuery);
+    console.log(`Schema '${schemaName}' created or already exists.`);
 
     // Create the table within the schema
     await client.query(createTableQuery);
+    console.log(`Table '${tableName}' created or already exists in schema '${schemaName}'.`);
 
-    console.log(
-      `Check Schema '${schemaName}' and table ${TableName} successfully`
-    );
-
-    client.release();
   } catch (err) {
-    console.error("Error:", err.message);
+    console.error("Error creating schema or table:", err.message);
+  } finally {
+    // Ensure the client is released even if an error occurs
+    if (client) client.release();
+    console.log("Client released.");
   }
 };
 

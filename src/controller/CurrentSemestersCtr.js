@@ -104,6 +104,7 @@ exports.fetshingCurrentSemesters = AsyncHandler(async (req, res) => {
   } finally {
     if (client) {
       client.release();
+      console.log("fetshingCurrentSemesters Client released");
     }
   }
 });

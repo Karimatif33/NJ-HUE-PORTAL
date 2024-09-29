@@ -1,5 +1,5 @@
 const express = require("express");
-const dataController = require('../controller/dataController');
+// const dataController = require('../controller/dataController');
 const { uiTotalsDataController } = require("../controller/Ui-Api's/TotalData");
 // const { uiSemestersController } = require("../controller/Ui-Api's/Semesters");
 const { uiTranscriptController } = require("../controller/Ui-Api's/TranscriptCtr");

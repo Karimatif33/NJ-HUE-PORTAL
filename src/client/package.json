@@ -1,7 +1,6 @@
 {
   "name": "HUE-MC Student_Portal",
   "version": "0.1.0",
-  "proxy": "https://127.0.0.1:443",
   "private": true,
   "dependencies": {
     "@azure/msal-browser": "^3.19.1",

@@ -121,7 +121,7 @@ exports.fetshingExamTimetable = AsyncHandler(async (req, res, next) => {
       throw error;
     } finally {
       client.release();
-      console.log("Client connection released");
+      console.log("fetshingExamTimetable Client released");
     }
   } catch (error) {
     logger.error(`Error fetching data from ${apiUrl}: ${error.message}`);
